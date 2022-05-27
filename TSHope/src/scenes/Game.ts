@@ -21,15 +21,10 @@ const overworldExits = [
   { x: 803, y: 216, name: "atlantis", scroll: { x: 0, y: 200 } },
   { x: 788, y: 1060, name: "home", scroll: { x: 200, y: 100 } },
   { x: 794, y: 1586, name: "ending", scroll: { x: 500, y: 500 } },
-  // {
-  //   x: 794,
-  //   y: 1500,
-  //   name: "nearEnd",
-  //   message: "You are near the end, no going back, are you sure?",
-  // },
 ];
 
 let waterfallLocked = true;
+let drankSoda = false;
 
 const dialogue = [
   {
@@ -218,18 +213,16 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(this.player, groundDeluxeLayer);
 
     //Initialize message and item sound.
-    this.message = this.add
-      .text(400, 300, "", {
-        color: "#FFF5EE",
-        fontFamily: "Tahoma",
-        backgroundColor: "#708090",
-        fontSize: "17px",
-        align: "center",
-        baselineX: 0,
-        baselineY: 0,
-        wordWrap: { width: 350 },
-      })
-      .setPadding(5, 5, 5, 5);
+    this.message = this.add.text(400, 300, "", {
+      color: "#FFF5EE",
+      fontFamily: "Tahoma",
+      backgroundColor: "#708090",
+      fontSize: "17px",
+      align: "center",
+      baselineX: 0,
+      baselineY: 0,
+      wordWrap: { width: 350 },
+    });
     let item = this.sound.add("item");
     let door = this.sound.add("door");
 
@@ -249,6 +242,16 @@ export default class Game extends Phaser.Scene {
 
     // Hit spacebar to interact with objects.
     this.cursors.space.on("down", () => {
+      if (
+        this.player.x > 150 &&
+        this.player.x < 185 &&
+        this.player.y > 106 &&
+        this.player.y < 141 &&
+        localStorage.Shovel
+      ) {
+        localStorage.setItem("Body", "It's... me!? ");
+        item.play();
+      }
       interact(0.03, this.message, this.player, data.layers[5].objects, item);
     }),
       // Hit shift to view Inventory.
@@ -265,14 +268,6 @@ export default class Game extends Phaser.Scene {
   }
 
   update(t: number, dt: number) {
-    if (this.message.text === "") {
-      this.message.setPadding(0, 0, 0, 0);
-    }
-
-    if (!this.cursors || !this.player) {
-      return;
-    }
-
     this.playDialogue();
     this.message.x = this.player.x - 100;
     this.message.y = this.player.y + 50;
@@ -282,9 +277,7 @@ export default class Game extends Phaser.Scene {
     this.accessWaterfall();
 
     //Empty inventory progressively.
-    if (localStorage["Keycard"] === `Dr. Pascal's keycard.`) {
-      localStorage.removeItem("Brain Scan");
-    }
+    this.conciseInventory();
 
     // Camera that follows
     this.cameras.main.scrollX = this.player.x - 400;
@@ -292,7 +285,7 @@ export default class Game extends Phaser.Scene {
 
     // movement
     let speed = this.message.text ? 0 : 120;
-    if (localStorage["Dr. Cola"] === "A yummy fizzy drink that doctors love!") {
+    if (drankSoda) {
       speed = this.message.text ? 0 : 180;
     }
     movePlayer(this.player, speed, this.cursors);
@@ -376,6 +369,7 @@ export default class Game extends Phaser.Scene {
       !hasSoda.hasAppeared
     ) {
       updateText(this.player, hasSoda, this.message);
+      this.sound.play("poing");
       hasSoda.hasAppeared = true;
     }
 
@@ -403,12 +397,14 @@ export default class Game extends Phaser.Scene {
     ) {
       if (this.message.text) this.message.text = "";
       updateText(this.player, dialogue[0], this.message);
+      this.sound.play("poing");
       dialogue[0].hasAppeared = true;
     } else {
       let dialogueSpot = isItClose(0.03, this.player, dialogue);
       if (dialogueSpot && !dialogueSpot.hasAppeared) {
         if (this.message.text) this.message.text = "";
         updateText(this.player, dialogueSpot, this.message);
+        this.sound.play("poing");
         dialogueSpot.hasAppeared = true;
       }
     }
@@ -471,6 +467,20 @@ export default class Game extends Phaser.Scene {
         this.player.setPosition(this.player.x, this.player.y + 5);
         updateText(this.player, noAccess, this.message);
       }
+    }
+  }
+
+  conciseInventory() {
+    if (localStorage.Body) {
+      localStorage.removeItem("Skull");
+      localStorage.removeItem("Shovel");
+    }
+    if (localStorage["Keycard"] === `Dr. Pascal's keycard.`) {
+      localStorage.removeItem("Brain Scan");
+    }
+    if (localStorage["Dr. Cola"] === "A yummy fizzy drink that doctors love!") {
+      drankSoda = true;
+      localStorage.removeItem("Dr. Cola");
     }
   }
 }

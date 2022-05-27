@@ -11,7 +11,6 @@ import {
   updateText,
   dialogueArea,
 } from "../../utils/helper";
-import { debugDraw } from "../utils/debug";
 import data from "../../public/tiles/hospital.json";
 
 let roomLocked = true;

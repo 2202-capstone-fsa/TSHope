@@ -1,17 +1,4 @@
 import Phaser from "phaser";
-import { debugDraw } from "../utils/debug";
-import data from "../../public/tiles/overworld.json";
-import {
-  isItClose,
-  setPlayer,
-  movePlayer,
-  overworldExits,
-  overworldObjs,
-  createAnims,
-  interact,
-  displayInventory,
-  updateInventory,
-} from "../../utils/helper";
 
 export default class ending extends Phaser.Scene {
   private parry!: "string";
@@ -32,6 +19,7 @@ export default class ending extends Phaser.Scene {
   }
 
   create() {
+    let outcome = "home";
     window.scrollTo(1500, 1500);
     this.cameras.main.centerOn(280.5, 150.5);
 
@@ -39,6 +27,7 @@ export default class ending extends Phaser.Scene {
     let heart = inventory.Heart;
     let Skull = inventory.Skull;
     let soul = inventory.Soul;
+    let body = inventory.Body;
 
     let text = "Place holder text";
 
@@ -69,12 +58,16 @@ export default class ending extends Phaser.Scene {
       });
     };
 
-    if (heart && soul && Skull) {
+    if (heart && soul && body) {
+      console.log(`Heart: ${heart}, Soul: ${soul}, Skull ${Skull}`);
       text =
-        "The heart, the soul, the Skull. The body is not complete without the soul, and the soul without the body. Having recovered all 3 pieces you feel a strong force moving you forward. The world of the living begins to fade away, and you move towards your next step in your passage.";
+        "The heart, the soul, the mind. The body is not complete without the soul, and the soul without the body. Having recovered all pieces of yourself you feel a strong force moving you forward. The world of the living begins to fade away, and you move towards your next step in your passage.";
+      this.sound.play("fanfare");
+      outcome = "titlescreen";
     } else if (heart || soul || Skull) {
+      console.log(`Heart: ${heart}, Soul: ${soul}, Skull ${Skull}`);
       text =
-        "With only part of your being in your possession, you feel incomplete. You feel a heavy, overbearing weight draw you back towards the uninhabited town. Perhaps there is something unfinished? Your body, mind and soul, stuck in a strange disconnect between this world and the next, fractures and sheers. Then you awaken, wondering it it was all a dream..";
+        "With only part of your being in your possession, you feel incomplete. You feel a heavy, overbearing weight draw you back towards the uninhabited town. Perhaps there is something unfinished? Your body, mind and soul, stuck in a strange disconnect between this world and the next, fractures and shears. Then you awaken, wondering it it was all a dream..";
     } else {
       text =
         "Locations are left unexplored and their purposes remain undiscovered. You travel deeper into the darkness. Your body weakens and your limbs loosen. Bit by bit you are torn apart and dissolved into the ether. At the last moment of conciousness, a pinhole of light appears and you reach for it. You reawaken wondering if it was all a dream..";
@@ -82,6 +75,7 @@ export default class ending extends Phaser.Scene {
 
     let endTexts = text.match(/[^\.!\?]+[\.!\?]+/g);
     let counter = -1;
+    localStorage.removeItem("from");
 
     // Hit spacebar to interact with objects.
     this.cursors.space.on("down", () => {
@@ -89,7 +83,7 @@ export default class ending extends Phaser.Scene {
       counter++;
       endTexts[counter]
         ? this.typewriteText(endTexts[counter])
-        : this.scene.start("game");
+        : this.scene.start(`${outcome}`);
     });
   }
   update(t: number, dt: number) {

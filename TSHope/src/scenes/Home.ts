@@ -3,14 +3,11 @@ import {
   isItClose,
   setPlayer,
   movePlayer,
-  overworldExits,
-  overworldObjs,
   createAnims,
   interact,
   displayInventory,
   updateText,
 } from "../../utils/helper";
-import { debugDraw } from "../utils/debug";
 import data from "../../public/tiles/home.json";
 
 const homeExits = [{ x: 210, y: 278, name: "game" }];
@@ -123,18 +120,16 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(this.player, furnitureLayer);
     //this.physics.add.collider(this.player, objectsLayer);
 
-    this.message = this.add
-      .text(800, 750, "", {
-        color: "#FFF5EE",
-        fontFamily: "Tahoma",
-        backgroundColor: "#708090",
-        fontSize: "17px",
-        align: "center",
-        baselineX: 0,
-        baselineY: 0,
-        wordWrap: { width: 350 },
-      })
-      .setPadding(5, 5, 5, 5);
+    this.message = this.add.text(800, 750, "", {
+      color: "#FFF5EE",
+      fontFamily: "Tahoma",
+      backgroundColor: "#708090",
+      fontSize: "17px",
+      align: "center",
+      baselineX: 0,
+      baselineY: 0,
+      wordWrap: { width: 350 },
+    });
     this.sound.add("item");
 
     // Hit spacebar to interact with objects.
@@ -226,6 +221,7 @@ export default class Game extends Phaser.Scene {
       if (this.message.text) this.message.text = "";
 
       updateText(this.player, hungies, this.message);
+      this.sound.play("poing");
       hungies.hasAppeared = true;
     }
 
@@ -233,6 +229,7 @@ export default class Game extends Phaser.Scene {
     if (dialogueSpot && !dialogueSpot.hasAppeared) {
       if (this.message.text) this.message.text = "";
       updateText(this.player, dialogueSpot, this.message);
+      this.sound.play("poing");
       dialogueSpot.hasAppeared = true;
     }
   }
