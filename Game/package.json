@@ -1,15 +1,24 @@
 {
   "dependencies": {
     "parcel-bundler": "^1.12.5",
-    "phaser": "^3.55.2"
+    "phaser": "^3.55.2",
+    "webfontloader": "^1.6.28"
   },
   "name": "y",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "parcel src/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "parcel-plugin-static-files-copy": "^2.6.0"
+  },
+  "staticFiles": {
+    "staticPath": "public",
+    "watcherGlob": "**"
+  }
 }
